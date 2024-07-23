@@ -1,0 +1,32 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix model: <https://yourcompany.app.data.world/schema/> .
+
+
+
+## CONCEPT
+
+model:ConceptID rdf:type owl:Class ; #For example, model:Customer
+    rdfs:label "Concept Label" ;
+    rdfs:comment "Description of Concept" ;
+.
+
+
+## ATTRIBUTES FOR CONCEPT
+
+model:AttributeID rdf:type owl:DatatypeProperty ; #For example, model:CustomerID
+     rdfs:label "Attribute Label" ;
+     rdfs:comment "Description of Attribute." ;
+     rdfs:domain model:AssociatedConceptID ; #Continuing the example, model:Customer
+.
+
+## RELATIONSHIPS FOR CONCEPT
+
+model:RelationshipID rdf:type owl:ObjectProperty ; #For example, model:CustomerHasPlacedOrder
+    rdfs:label "Relationship Label" ;
+    rdfs:comment "Description of a Relationship" ;
+    rdfs:domain model:FromConceptID ; #Continuing the example, model:Customer
+    rdfs:range model:ToConceptID ; #Continuing the example, model:Order
+.
+

@@ -1,0 +1,143 @@
+@prefix vg:   <https://data.world/vg/1.0/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix aice: <https://data.world/aice/1.0/> .
+
+### SIMPLE INDEXES (ALL CLASSES/PREDICATES IN DATASET)
+# Index all classes and predicates in a dataset
+
+aice:ClassIndex
+    a               vg:VectorIndex ;
+    aice:indexType  owl:Class ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX dct:  <http://purl.org/dc/terms/>
+    PREFIX aice: <https://data.world/aice/1.0/>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        # Grab a bunch of predicates and concat them
+        VALUES ?predicate { rdfs:label dct:title rdfs:comment dct:description }
+
+        # pulls dynamically from the graph to allow for extension
+        aice:ClassIndex aice:indexType ?class .
+
+        ?iri a/rdfs:subClassOf* ?class.
+        ?iri ?predicate         ?content.
+    }
+    GROUP BY ?iri
+    """
+.
+
+aice:ObjectPropertyIndex
+    a               vg:VectorIndex ;
+    aice:indexType  owl:ObjectProperty ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX dct:  <http://purl.org/dc/terms/>
+    PREFIX aice: <https://data.world/aice/1.0/>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        # Grab a bunch of predicates and concat them
+        VALUES ?predicate { rdfs:label dct:title rdfs:comment dct:description }
+
+        # pulls dynamically from the graph to allow for extension
+        aice:ObjectPropertyIndex aice:indexType ?class .
+
+        ?iri a/rdfs:subClassOf* ?class.
+        ?iri ?predicate         ?content.
+    }
+    GROUP BY ?iri
+    """
+.
+
+aice:DatatypePropertyIndex
+    a               vg:VectorIndex ;
+    aice:indexType  owl:DatatypeProperty ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX dct:  <http://purl.org/dc/terms/>
+    PREFIX aice: <https://data.world/aice/1.0/>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        # Grab a bunch of predicates and concat them
+        VALUES ?predicate { rdfs:label dct:title rdfs:comment dct:description }
+
+        # pulls dynamically from the graph to allow for extension
+        aice:DatatypePropertyIndex aice:indexType ?class .
+
+        ?iri a/rdfs:subClassOf* ?class.
+        ?iri ?predicate         ?content.
+    }
+    GROUP BY ?iri
+    """
+.
+
+### MAPPED INDEXES (ONLY MAPPED CLASSES/PREDICATES IN DATASET)
+# These indexes pull from the r2rml to determine the correct classes/predicates to index
+
+aice:MappedClassIndex
+    a               vg:VectorIndex ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rr: <http://www.w3.org/ns/r2rml#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        [rr:class ?class].
+        ?iri rdfs:subClassOf*  ?class ;
+             a owl:Class.
+        VALUES ?contentPredicate {rdfs:label dct:title rdfs:comment dct:description}
+        ?iri ?contentPredicate ?content.
+    }
+    GROUP BY ?iri
+    """
+.
+
+aice:MappedObjectPropertyIndex
+    a               vg:VectorIndex ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rr: <http://www.w3.org/ns/r2rml#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        [rr:predicate ?predicate].
+        ?iri       rdfs:subPropertyOf* ?predicate.
+        ?predicate a                   owl:ObjectProperty.
+        VALUES ?contentPredicate {rdfs:label dct:title rdfs:comment dct:description}
+        ?iri       ?contentPredicate   ?content.
+    }
+    GROUP BY ?iri
+    """
+.
+
+aice:MappedDatatypePropertyIndex
+    a               vg:VectorIndex ;
+    vg:model        vg:mxbai_embed_large_v1 ;
+    vg:indexerQuery """
+    PREFIX rr: <http://www.w3.org/ns/r2rml#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    PREFIX csvw: <http://www.w3.org/ns/csvw#>
+
+    SELECT ?iri (GROUP_CONCAT(?content; SEPARATOR = " ") AS ?value)
+    WHERE {
+        [rr:predicate ?predicate].
+        ?iri       rdfs:subPropertyOf* ?predicate.
+        ?predicate a                   owl:DatatypeProperty.
+        FILTER NOT EXISTS { ?iri a csvw:Column }
+        VALUES ?contentPredicate {rdfs:label dct:title rdfs:comment dct:description}
+        ?iri       ?contentPredicate   ?content.
+    }
+    GROUP BY ?iri
+    """
+.

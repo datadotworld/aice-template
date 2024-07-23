@@ -1,0 +1,38 @@
+@prefix rr:  <http://www.w3.org/ns/r2rml#> .
+@prefix map:  <https://yourcompany.app.data.world/mapping/> .
+@prefix model: <https://yourcompany.app.data.world/schema/> .
+
+
+map:CHANGEMEConceptMapping a rr:TriplesMap ;
+
+    ## Mapping for CONCEPT
+    rr:logicalTable [ 
+        rr:tableName "FILLME" #table or view name that is being mapped to the Concept. This could also be a SQL query (more later)
+    ] ;
+
+    rr:subjectMap   [ 
+        rr:class model:ConceptID ; #ID of the Concept we are mapping to. 
+        rr:template "FILLME" # URI scheme that uniquely identifies each instance of the Concept. It will use columns that uniquely identify the instance e.g. https://yourcompany.app.data.world/d/Customer-{customerid} 
+    ] ;
+
+
+    ## Mappings for ATTRIBUTES that use the data in the table name above. 
+    rr:predicateObjectMap   [ 
+        rr:predicate model:AttributeID ; #ID of the Attribute we are mapping to. 
+        rr:objectMap [ rr:column "FILLME" ] ; #column name that is in the table name for which is being mapped
+    ] ;
+
+
+    ## Mappings for RELATIONSHIPS that use the data in the table name above. 
+    rr:predicateObjectMap   [ 
+        rr:predicate model:RelationshipID ;
+        rr:objectMap [ 
+            rr:template "FILLME" #template of the To Concept ID e.g. https://yourcompany.app.data.world/d/Customer-{customerid} 
+        ] ; 
+    ] ;
+
+.
+
+
+
+
